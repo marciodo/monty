@@ -1,5 +1,5 @@
 ;**********************************************
-;Equação: (A+B)-C
+;Sequenciamento de tarefas
 	    
 	    LIST    P=16F84A	;Tipo de dispositivo
 	    INCLUDE "p16f84a.inc";Definição de registros	
