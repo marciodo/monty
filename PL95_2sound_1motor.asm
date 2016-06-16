@@ -1,6 +1,7 @@
 ;**********************************************
-;Muda o sentido do motor de acordo com a leitura 
-;de duas entradas óticas.
+;Ativa o motor quando um movimento é detectado 
+;nos sensores ultrassônicos e desativa quando
+;um som é detectado no microfone.
 	    
 	    LIST    P=16F84A	;Tipo de dispositivo
 	    INCLUDE "p16f84a.inc";Definição de registros
@@ -14,32 +15,19 @@
 ;Começo do programa
 INICIO:	    bsf	    STATUS, RP0	;Banco 1
 	    clrf    TRISA	;Portas A saída
-	    movlw   b'00000011' ;RB0 e RB1 = entrada
+	    movlw   b'00110000' ;RB4 e 5 = entrada
 	    movwf   TRISB
-	    bcf	    STATUS, RP0	;Banco 0
+	    bcf	    STATUS, RP0	;Banco 0                                                                                                                                                                                                                      
+	    clrf    PORTA
 	    
-LOOP:	    btfss   PORTB, 0	;Salta se RB0 = True
-	    goto    PRETO_DIR
-	    goto    BRANCO_DIR
+MOVIMENTO:  btfsc   PORTB, 4	;Salta se movimento detectado (False no ultrassom)
+	    goto    MOVIMENTO
+	    movlw   0x01
+	    movwf   PORTA	;Ativa uma saída para mover o motor
 	    
-PRETO_DIR:  btfss   PORTB, 1	;Salta se RB1 = True
-	    goto    PARAR
-	    goto    DIREITA
-	    
-BRANCO_DIR: btfss   PORTB, 1	;Salta se RB1 = True
-	    goto    ESQUERDA
-	    goto    PARAR	    
-	    
-PARAR:	    clrf    PORTA	;Para ambos os motores
-	    goto    LOOP
-	    
-;Com RA0 e RA1 com sinais opostos o motor move em uma direcao ou outra
-DIREITA:    bsf	    PORTA, 0	;RA0 recebe True
-	    bcf	    PORTA, 1	;RA1 recebe False
-	    goto    LOOP
-	    
-ESQUERDA:   bcf	    PORTA, 0	;RA0 recebe False
-	    bsf	    PORTA, 1	;RA1 recebe True
-	    goto    LOOP
+SOM:	    btfss   PORTB, 5	;Salta se som detectado (True no microfone)
+	    goto    SOM
+	    clrf    PORTA	;Limpa saída para parar motor
+	    goto    MOVIMENTO
 
 	    END	    ;Fim do programa
